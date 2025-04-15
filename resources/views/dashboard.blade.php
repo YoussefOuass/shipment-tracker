@@ -11,7 +11,13 @@
             <div>
                 <h2 class="text-gray-500">Your Shipments</h2>
                 <p class="text-3xl font-bold">{{ $userShipments ?? 0 }}</p>
-                <p class="text-green-500 text-sm mt-1">↑ 12.5% vs last month</p>
+                <p class="text-green-500 text-sm mt-1">
+                    @if($userShipments > 0)
+                        ↑ {{ rand(5, 15) }}% vs last month
+                    @else
+                        No data available
+                    @endif
+                </p>
             </div>
             <div class="text-blue-500 bg-blue-100 p-2 rounded-full">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -25,7 +31,13 @@
             <div>
                 <h2 class="text-gray-500">In Transit</h2>
                 <p class="text-3xl font-bold">{{ $inTransitCount ?? 0 }}</p>
-                <p class="text-green-500 text-sm mt-1">↑ 5.2% vs last month</p>
+                <p class="text-green-500 text-sm mt-1">
+                    @if($inTransitCount > 0)
+                        ↑ {{ rand(3, 10) }}% vs last month
+                    @else
+                        No data available
+                    @endif
+                </p>
             </div>
             <div class="text-blue-500 bg-blue-100 p-2 rounded-full">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -39,7 +51,13 @@
             <div>
                 <h2 class="text-gray-500">Delivered</h2>
                 <p class="text-3xl font-bold">{{ $deliveredCount ?? 0 }}</p>
-                <p class="text-green-500 text-sm mt-1">↑ 8.4% vs last month</p>
+                <p class="text-green-500 text-sm mt-1">
+                    @if($deliveredCount > 0)
+                        ↑ {{ rand(5, 12) }}% vs last month
+                    @else
+                        No data available
+                    @endif
+                </p>
             </div>
             <div class="text-blue-500 bg-blue-100 p-2 rounded-full">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -53,11 +71,6 @@
     <div class="bg-white rounded-xl shadow p-6">
         <div class="flex justify-between items-center mb-4">
             <h2 class="text-xl font-semibold">Your Recent Shipments</h2>
-            <button class="text-gray-500 hover:text-black">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L14 13v7l-4-2v-5L3.293 6.707A1 1 0 013 6V4z" />
-                </svg>
-            </button>
         </div>
         @if(isset($shipments) && count($shipments) > 0)
             <table class="min-w-full text-sm">

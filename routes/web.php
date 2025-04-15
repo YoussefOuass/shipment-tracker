@@ -10,10 +10,14 @@ use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AdminShipmentController;
 use App\Http\Controllers\AdminCarrierController;
+use App\Http\Controllers\CarrierController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminCustomerController;
 
 // Public routes
-Route::get('/', [ShipmentController::class, 'index'])->name('home');
+Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 Route::get('/track', [ShipmentController::class, 'track'])->name('track');
+Route::get('/home', [DashboardController::class, 'redirectToHome'])->name('home');
 
 // Authentication routes
 Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -25,8 +29,14 @@ Route::post('register', [RegisterController::class, 'register']);
 
 // Protected routes for authenticated users
 Route::middleware(['auth'])->group(function () {
-    // User dashboard
+    // User and Admin Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
+    // Shipment management routes
+    Route::get('/shipments/{shipment}', [ShipmentController::class, 'show'])->name('shipments.show');
+    Route::get('/shipments/{shipment}/edit', [ShipmentController::class, 'edit'])->name('shipments.edit');
+    Route::put('/shipments/{shipment}', [ShipmentController::class, 'update'])->name('shipments.update');
+    Route::delete('/shipments/{shipment}', [ShipmentController::class, 'destroy'])->name('shipments.destroy');
     
     // Advanced tracking features
     Route::prefix('shipments/{shipment}')->group(function () {
@@ -55,11 +65,50 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['auth', 'is_admin'])->prefix('admin')->group(function () {
         Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 
-        // Example CRUD routes for managing users
+        // Admin-specific resource routes
         Route::resource('users', AdminUserController::class);
-
-        // Add more resources for other entities (e.g., shipments, carriers)
         Route::resource('shipments', AdminShipmentController::class);
         Route::resource('carriers', AdminCarrierController::class);
+        Route::resource('customers', AdminCustomerController::class); // Correctly placed here
     });
+});
+
+// Admin routes
+Route::middleware(['auth', 'is_admin'])->prefix('admin')->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'home'])->name('admin.dashboard');
+    Route::get('/home', [AdminController::class, 'index'])->name('admin.home'); // Admin Dashboard Route
+});
+
+// User dashboard route
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+});
+
+// Home route
+Route::get('/home', [DashboardController::class, 'redirectToHome'])->name('home');
+
+Route::get('/admin/home', [AdminController::class, 'home'])->name('admin.home');
+
+Route::resource('shipments', ShipmentController::class);
+Route::resource('carriers', CarrierController::class);
+
+Route::middleware(['auth', 'is_admin'])->prefix('admin')->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'home'])->name('admin.dashboard'); // Admin Panel Route
+    Route::resource('customers', AdminCustomerController::class);
+    Route::resource('carriers', AdminCarrierController::class);
+    Route::resource('shipments', AdminShipmentController::class);
+    Route::resource('users', AdminUserController::class);
+});
+
+Route::middleware(['auth', 'is_admin'])->prefix('admin')->group(function () {
+    Route::get('/home', [AdminController::class, 'home'])->name('admin.home'); // Admin Dashboard Route
+});
+
+Route::middleware(['auth', 'is_admin'])->prefix('admin')->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard'); // Admin Panel Route
+});
+
+Route::middleware(['auth', 'is_admin'])->prefix('admin')->group(function () {
+    Route::get('/', [AdminController::class, 'index'])->name('admin.dashboard'); // Admin Panel Route
+    Route::get('/home', [AdminController::class, 'home'])->name('admin.home'); // Admin Home Route
 });

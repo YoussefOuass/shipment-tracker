@@ -17,44 +17,42 @@ class DashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
-        
-        // Find the customer associated with the user
+
+        if ($user->is_admin) {
+            // Fetch data for admin
+            $shipments = Shipment::all();
+            $carriers = \App\Models\Carrier::all();
+            $users = \App\Models\User::all();
+            $customers = Customer::all();
+
+            return view('admin.dashboard', compact('shipments', 'carriers', 'users', 'customers'));
+        }
+
+        // Fetch data for regular user
         $customer = Customer::where('email', $user->email)->first();
-        
+
         if (!$customer) {
-            // If no customer is found, return empty data
             return view('dashboard', [
                 'shipments' => collect([]),
                 'userShipments' => 0,
                 'inTransitCount' => 0,
-                'deliveredCount' => 0
+                'deliveredCount' => 0,
             ]);
         }
-        
-        // Get customer's shipments
-        $shipments = Shipment::where('customer_id', $customer->id)
-            ->latest()
-            ->take(10)
-            ->get();
-            
-        // Count customer's shipments
-        $userShipments = Shipment::where('customer_id', $customer->id)->count();
-        
-        // Count in-transit shipments
-        $inTransitCount = Shipment::where('customer_id', $customer->id)
-            ->where('status', 'In Transit')
-            ->count();
-            
-        // Count delivered shipments
-        $deliveredCount = Shipment::where('customer_id', $customer->id)
-            ->where('status', 'Delivered')
-            ->count();
-        
-        return view('dashboard', [
-            'shipments' => $shipments,
-            'userShipments' => $userShipments,
-            'inTransitCount' => $inTransitCount,
-            'deliveredCount' => $deliveredCount
-        ]);
+
+        $shipments = Shipment::where('customer_id', $customer->id)->get();
+
+        return view('dashboard', compact('shipments'));
     }
-} 
+
+    public function redirectToHome()
+    {
+        $user = Auth::user();
+
+        if ($user->is_admin) {
+            return redirect()->route('admin.dashboard'); // Redirect admins to the admin dashboard
+        }
+
+        return redirect()->route('dashboard'); // Redirect regular users to their dashboard
+    }
+}
